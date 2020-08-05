@@ -48,6 +48,10 @@ class LocationService : Service() {
         return true
     }
 
+    override fun onRebind(intent: Intent?) {
+        super.onRebind(intent)
+    }
+
     override fun onCreate() {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

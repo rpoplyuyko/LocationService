@@ -13,9 +13,7 @@ import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private var locationServiceBound = false
-
-    // Provides location updates for while-in-use feature.
+    private lateinit var preferenceProvider: PreferenceProvider
     private var locationService: LocationService? = null
 
     private val locationServiceConnection = object : ServiceConnection {
@@ -23,12 +21,13 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             val binder = service as LocationService.LocalBinder
             locationService = binder.service
-            locationServiceBound = true
+            preferenceProvider.putBoolean(Constants.KEY_SERVICE_BOUND, true)
+            preferenceProvider.putBoolean(Constants.KEY_RUNNING_SERVICE, true)
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             locationService = null
-            locationServiceBound = false
+            preferenceProvider.putBoolean(Constants.KEY_SERVICE_BOUND, false)
         }
     }
 
@@ -36,23 +35,33 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val serviceClass = LocationService::class.java
-        val serviceIntent = Intent(applicationContext, serviceClass)
+        preferenceProvider = PreferenceProvider(applicationContext)
+
+        if (preferenceProvider.getBoolean(Constants.KEY_RUNNING_SERVICE)) {
+            val serviceIntent = Intent(applicationContext, LocationService::class.java)
+            bindService(serviceIntent, locationServiceConnection, Context.BIND_AUTO_CREATE)
+        }
 
         buttonStart.setOnClickListener() {
-            if (foregroundPermissionApproved()) {
-                val serviceIntent = Intent(this, LocationService::class.java)
+            if (foregroundPermissionApproved() && !preferenceProvider.getBoolean(Constants.KEY_RUNNING_SERVICE)) {
+                val serviceIntent = Intent(applicationContext, LocationService::class.java)
                 bindService(serviceIntent, locationServiceConnection, Context.BIND_AUTO_CREATE)
             } else {
                 requestForegroundPermissions()
             }
         }
         buttonStop.setOnClickListener() {
-            if (locationServiceBound) {
+            if (preferenceProvider.getBoolean(Constants.KEY_SERVICE_BOUND)) {
                 unbindService(locationServiceConnection)
-                locationServiceBound = false
+                preferenceProvider.putBoolean(Constants.KEY_RUNNING_SERVICE, false)
+                preferenceProvider.putBoolean(Constants.KEY_SERVICE_BOUND, false)
             }
         }
+    }
+
+    override fun onDestroy() {
+        preferenceProvider.putBoolean(Constants.KEY_SERVICE_BOUND, false)
+        super.onDestroy()
     }
 
     // Permission request ↓↓↓↓↓↓↓↓↓
