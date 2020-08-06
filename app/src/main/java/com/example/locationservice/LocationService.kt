@@ -30,7 +30,7 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Toast.makeText(this, "Service started by user.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Service started by user.", Toast.LENGTH_SHORT).show();
 
         startForeground(NOTIFICATION_ID, createNotification(getTextLocation(currentLocation)))
         objectCallback()
@@ -59,11 +59,9 @@ class LocationService : Service() {
                 super.onLocationResult(p0)
                 if (p0?.lastLocation != null) {
                     currentLocation = p0.lastLocation
-                    //startForeground(NOTIFICATION_ID, createNotification(getTextLocation(currentLocation)))
                     showNotification()
                 } else {
                     showNotification()
-                    //startForeground(NOTIFICATION_ID, createNotification(getTextLocation(currentLocation)))
                 }
             }
         }
@@ -75,7 +73,7 @@ class LocationService : Service() {
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID)
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         stopSelf()
-        Toast.makeText(this, "Service destroyed by user.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Service destroyed by user.", Toast.LENGTH_SHORT).show();
     }
 
     private fun createNotification(showText: String) : Notification {
@@ -124,6 +122,7 @@ class LocationService : Service() {
         private const val NOTIFICATION_ID = 12345678
         private const val NOTIFICATION_CHANNEL_ID = "locaion_service_channel_01"
         private const val titleText = "Location Service"
+        lateinit var dataBase: RoomSingleton
 
         fun start(context: Context) {
             val intent = Intent(context, LocationService::class.java)
@@ -134,7 +133,11 @@ class LocationService : Service() {
             val intent = Intent(context, LocationService::class.java)
             context.stopService(intent)
         }
+
+        fun initDatabase(context: Context) {
+            dataBase = RoomSingleton.getInstance(context)
+        }
     }
 
-    var mDB = RoomSingleton.getInstance(applicationContext)
+    //var mDB = RoomSingleton.getInstance(applicationContext)
 }

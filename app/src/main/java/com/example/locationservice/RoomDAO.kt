@@ -14,5 +14,5 @@ interface RoomDAO{
     fun insert(item: Item)
 
     @Query("DELETE FROM item_table")
-    suspend fun deleteAll()
+    fun deleteAll()
 }

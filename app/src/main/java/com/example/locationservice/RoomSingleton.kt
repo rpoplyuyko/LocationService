@@ -1,6 +1,8 @@
 package com.example.locationservice
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Toast
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -11,6 +13,7 @@ abstract class RoomSingleton : RoomDatabase(){
 
     companion object{
         private var INSTANCE: RoomSingleton? = null
+        @SuppressLint("ShowToast")
         fun getInstance(context: Context): RoomSingleton{
             if (INSTANCE == null){
                 INSTANCE = Room.databaseBuilder(
@@ -18,6 +21,7 @@ abstract class RoomSingleton : RoomDatabase(){
                     RoomSingleton::class.java,
                     "roomdb")
                     .build()
+                Toast.makeText(context,"Start Database", Toast.LENGTH_SHORT)
             }
 
             return INSTANCE as RoomSingleton
