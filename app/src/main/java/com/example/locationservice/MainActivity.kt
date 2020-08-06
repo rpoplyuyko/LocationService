@@ -1,12 +1,12 @@
 package com.example.locationservice
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.example.locationservice.LocationService.Companion.initDatabase
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
         buttonStart.setOnClickListener {
             if (foregroundPermissionApproved()) {
                 startService(Intent(applicationContext, LocationService::class.java))
-                initDatabase(applicationContext)
             } else {
                 requestForegroundPermissions()
             }
@@ -44,5 +43,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestForegroundPermissions() {
         requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
+    }
+
+    fun getContext() : Context {
+        return applicationContext
     }
 }

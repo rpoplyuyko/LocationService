@@ -1,5 +1,6 @@
 package com.example.locationservice
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.*
 import android.content.Context
@@ -12,7 +13,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.room.Database
+import androidx.room.Room
 import com.google.android.gms.location.*
+import org.jetbrains.anko.doAsync
+import java.security.AccessController.getContext
 import java.util.concurrent.TimeUnit
 
 class LocationService : Service() {
@@ -27,8 +32,6 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        Toast.makeText(this, "Service started by user.", Toast.LENGTH_SHORT).show();
-
         startForeground(NOTIFICATION_ID, createNotification(getTextLocation(currentLocation)))
         objectCallback()
         fusedLocationProviderClient.requestLocationUpdates(
@@ -38,6 +41,14 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        val instance = RoomSingleton.getInstance(applicationContext)
+        doAsync {
+            instance.roomDAO().insert(Item("wreger", "wegwr", "ewwq", getDateStr()))
+            listItem = instance.roomDAO().allItems()
+            Toast.makeText(applicationContext, "success", Toast.LENGTH_SHORT).show()
+        }
+
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -57,13 +68,20 @@ class LocationService : Service() {
                 if (p0?.lastLocation != null) {
                     currentLocation = p0.lastLocation
                     showNotification()
-                    dataBase.roomDAO().insert(
-                        Item(
-                            getAddress(applicationContext, p0.lastLocation),
-                            getCoordinates(p0.lastLocation, true),
-                            getCoordinates(p0.lastLocation, false),
-                            getDateStr()
-                    ))
+//                    Singleton.insertItem(Item(
+//                        getAddress(applicationContext, p0.lastLocation),
+//                                getCoordinates(p0.lastLocation, true),
+//                                getCoordinates(p0.lastLocation, false),
+//                                getDateStr()
+//                    ))
+//                    dataBase.roomDAO().insert(
+//                        Item(
+//                            getAddress(applicationContext, p0.lastLocation),
+//                            getCoordinates(p0.lastLocation, true),
+//                            getCoordinates(p0.lastLocation, false),
+//                            getDateStr()
+//                    ))
+//                    listItem = dataBase.roomDAO().allItems()
                 } else {
                     showNotification()
                 }
@@ -121,7 +139,7 @@ class LocationService : Service() {
         if (location != null) {
             val lat = location.latitude.toDouble()
             val lon = location.longitude.toDouble()
-            return "$lat,$lon"
+            return "$lat°, $lon°"
         } else {
             return "Location is empty"
         }
@@ -131,7 +149,7 @@ class LocationService : Service() {
         private const val NOTIFICATION_ID = 12345678
         private const val NOTIFICATION_CHANNEL_ID = "locaion_service_channel_01"
         private const val titleText = "Location Service"
-        lateinit var dataBase: RoomSingleton
+        var listItem : List<Item>? = null
 
         fun start(context: Context) {
             val intent = Intent(context, LocationService::class.java)
@@ -142,9 +160,16 @@ class LocationService : Service() {
             val intent = Intent(context, LocationService::class.java)
             context.stopService(intent)
         }
-
-        fun initDatabase(context: Context) {
-            dataBase = RoomSingleton.getInstance(context)
-        }
     }
 }
+
+//object Singleton {
+//    private lateinit var roomSingleton: RoomSingleton
+//
+//    fun getInstance(context: Context) {
+//        roomSingleton = RoomSingleton.getInstance(context)
+//    }
+//    fun delete() {
+//        RoomSingleton.delete()
+//    }
+//}

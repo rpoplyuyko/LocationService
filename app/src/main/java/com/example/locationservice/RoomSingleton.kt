@@ -2,29 +2,45 @@ package com.example.locationservice
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.database.sqlite.SQLiteQuery
 import android.widget.Toast
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
+import java.sql.SQLOutput
 
 @Database(entities = arrayOf(Item::class), version = 1, exportSchema = false)
+
 abstract class RoomSingleton : RoomDatabase(){
     abstract fun roomDAO():RoomDAO
 
-    companion object{
-        private var INSTANCE: RoomSingleton? = null
-        @SuppressLint("ShowToast")
-        fun getInstance(context: Context): RoomSingleton{
-            if (INSTANCE == null){
-                INSTANCE = Room.databaseBuilder(
-                    context,
-                    RoomSingleton::class.java,
-                    "roomdb")
-                    .build()
-                Toast.makeText(context,"Start Database", Toast.LENGTH_SHORT)
-            }
+    companion object : SingletonHolder<RoomSingleton, Context>({
+        Room.databaseBuilder(it.applicationContext,
+            RoomSingleton::class.java, "Sample.db")
+            .build()
+    })
 
-            return INSTANCE as RoomSingleton
+}
+
+open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
+    private var creator: ((A) -> T)? = creator
+    @Volatile private var instance: T? = null
+
+    fun getInstance(arg: A): T {
+        val i = instance
+        if (i != null) {
+            return i
+        }
+
+        return synchronized(this) {
+            val i2 = instance
+            if (i2 != null) {
+                i2
+            } else {
+                val created = creator!!(arg)
+                instance = created
+                creator = null
+                created
+            }
         }
     }
 }
