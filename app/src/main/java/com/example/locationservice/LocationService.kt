@@ -1,10 +1,7 @@
 package com.example.locationservice
 
 import android.annotation.TargetApi
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -60,6 +57,13 @@ class LocationService : Service() {
                 if (p0?.lastLocation != null) {
                     currentLocation = p0.lastLocation
                     showNotification()
+                    dataBase.roomDAO().insert(
+                        Item(
+                            getAddress(applicationContext, p0.lastLocation),
+                            getCoordinates(p0.lastLocation, true),
+                            getCoordinates(p0.lastLocation, false),
+                            getDateStr()
+                    ))
                 } else {
                     showNotification()
                 }
@@ -89,6 +93,10 @@ class LocationService : Service() {
 
         val notificationCompatBuilder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
 
+        val launchActivityIntent = Intent(this, MainActivity::class.java)
+        val activityPendingIntent = PendingIntent.getActivity(
+            this, 0, launchActivityIntent, 0)
+
         return notificationCompatBuilder
             .setStyle(bigTextStyle)
             .setContentTitle(titleText)
@@ -97,6 +105,7 @@ class LocationService : Service() {
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContentIntent(activityPendingIntent)
             .build()
     }
 
@@ -138,6 +147,4 @@ class LocationService : Service() {
             dataBase = RoomSingleton.getInstance(context)
         }
     }
-
-    //var mDB = RoomSingleton.getInstance(applicationContext)
 }
