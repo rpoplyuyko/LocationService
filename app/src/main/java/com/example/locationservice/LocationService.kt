@@ -1,6 +1,5 @@
 package com.example.locationservice
 
-import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.*
 import android.content.Context
@@ -9,16 +8,13 @@ import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.room.Database
-import androidx.room.Room
 import com.google.android.gms.location.*
 import org.jetbrains.anko.doAsync
-import java.security.AccessController.getContext
 import java.util.concurrent.TimeUnit
+
 
 class LocationService : Service() {
     private lateinit var notificationManager: NotificationManager
@@ -26,6 +22,8 @@ class LocationService : Service() {
     private lateinit var locationCallback: LocationCallback
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var currentLocation: Location? = null
+    val KEY_BROADCAST = "MessageUpdateDB"
+    private lateinit var instance: RoomSingleton
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -42,13 +40,9 @@ class LocationService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        val instance = RoomSingleton.getInstance(applicationContext)
-        doAsync {
-            instance.roomDAO().insert(Item("wreger", "wegwr", "ewwq", getDateStr()))
-            listItem = instance.roomDAO().allItems()
-            Toast.makeText(applicationContext, "success", Toast.LENGTH_SHORT).show()
-        }
+        instance = RoomSingleton.getInstance(applicationContext)
 
+        ////////////////////////////////////////////
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -68,6 +62,19 @@ class LocationService : Service() {
                 if (p0?.lastLocation != null) {
                     currentLocation = p0.lastLocation
                     showNotification()
+
+                    doAsync {
+                        instance.roomDAO().insert(Item(
+                            getTextLocation(p0.lastLocation),
+                            getCoordinates(p0.lastLocation, true),
+                            getCoordinates(p0.lastLocation, false),
+                            getDateStr()
+                        ))
+                        instance.roomDAO().allItems()
+                        val intent = Intent(KEY_BROADCAST)
+                        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                        sendBroadcast(intent)
+                    }
                 } else {
                     showNotification()
                 }
@@ -144,6 +151,10 @@ class LocationService : Service() {
         fun stop(context: Context) {
             val intent = Intent(context, LocationService::class.java)
             context.stopService(intent)
+        }
+
+        fun getListItems() : List<Item>? {
+            return listItem
         }
     }
 }

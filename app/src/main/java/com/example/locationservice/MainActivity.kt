@@ -1,9 +1,12 @@
 package com.example.locationservice
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -12,6 +15,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mDb: RoomSingleton
+    var messageReceiver: BroadcastReceiver? = MessageReceiver()
+    val KEY_BROADCAST = "MessageUpdateDB"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +36,19 @@ class MainActivity : AppCompatActivity() {
             stopService(Intent(applicationContext, LocationService::class.java))
             //  mDb = RoomSingleton.getInstance(applicationContext)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        val filter = IntentFilter(KEY_BROADCAST)
+        filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        this.registerReceiver(messageReceiver, filter);
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(messageReceiver);
     }
 
     // Permission request ↓↓↓↓↓↓↓↓↓

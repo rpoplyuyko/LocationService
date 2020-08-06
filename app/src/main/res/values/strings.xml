@@ -1,4 +1,10 @@
 <resources>
-    <string name="app_name">LocationService</string>
-    <string name="key_broadcast">StartReadDatabase</string>
+    <string name="app_name">Location Service</string>
+    <string name="key_broadcast">MessageUpdateDB</string>
+
+    <string name="text_address">Address:</string>
+    <string name="text_lat">Latitude:</string>
+    <string name="text_lon">Longtitude:</string>
+    <string name="text_date">Date/Time:</string>
+    <string name="text_none">none</string>
 </resources>
