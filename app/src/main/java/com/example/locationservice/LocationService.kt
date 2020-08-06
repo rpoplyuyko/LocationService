@@ -135,4 +135,6 @@ class LocationService : Service() {
             context.stopService(intent)
         }
     }
+
+    var mDB = RoomSingleton.getInstance(applicationContext)
 }
