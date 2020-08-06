@@ -36,7 +36,7 @@ class LocationService : Service() {
         objectCallback()
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest, locationCallback, Looper.myLooper())
-        return START_REDELIVER_INTENT
+        return START_STICKY
     }
 
     override fun onCreate() {
