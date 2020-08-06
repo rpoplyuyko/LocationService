@@ -68,20 +68,6 @@ class LocationService : Service() {
                 if (p0?.lastLocation != null) {
                     currentLocation = p0.lastLocation
                     showNotification()
-//                    Singleton.insertItem(Item(
-//                        getAddress(applicationContext, p0.lastLocation),
-//                                getCoordinates(p0.lastLocation, true),
-//                                getCoordinates(p0.lastLocation, false),
-//                                getDateStr()
-//                    ))
-//                    dataBase.roomDAO().insert(
-//                        Item(
-//                            getAddress(applicationContext, p0.lastLocation),
-//                            getCoordinates(p0.lastLocation, true),
-//                            getCoordinates(p0.lastLocation, false),
-//                            getDateStr()
-//                    ))
-//                    listItem = dataBase.roomDAO().allItems()
                 } else {
                     showNotification()
                 }
@@ -95,7 +81,6 @@ class LocationService : Service() {
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID)
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         stopSelf()
-        //Toast.makeText(this, "Service destroyed by user.", Toast.LENGTH_SHORT).show();
     }
 
     private fun createNotification(showText: String) : Notification {
@@ -162,14 +147,3 @@ class LocationService : Service() {
         }
     }
 }
-
-//object Singleton {
-//    private lateinit var roomSingleton: RoomSingleton
-//
-//    fun getInstance(context: Context) {
-//        roomSingleton = RoomSingleton.getInstance(context)
-//    }
-//    fun delete() {
-//        RoomSingleton.delete()
-//    }
-//}

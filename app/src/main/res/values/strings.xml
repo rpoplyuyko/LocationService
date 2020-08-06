@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LocationService</string>
+    <string name="key_broadcast">StartReadDatabase</string>
 </resources>
