@@ -7,7 +7,7 @@ import androidx.room.Query
 
 @Dao
 interface RoomDAO{
-    @Query("SELECT * FROM item_table")
+    @Query("SELECT * FROM item_table ORDER BY item_date DESC")
     fun allStudents():List<Item>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
