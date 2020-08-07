@@ -3,15 +3,10 @@ package com.example.locationservice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jetbrains.anko.doAsync
 
-class MessageReceiver : BroadcastReceiver() {
+class MessageReceiver(main: MainActivity) : BroadcastReceiver() {
+    var mainActivity: MainActivity = main
     override fun onReceive(context: Context, intent: Intent) {
-        doAsync {
-            coroutineGetData()
-        }
+        mainActivity.update()
     }
 }

@@ -1,7 +1,10 @@
 package com.example.locationservice
 
 import android.annotation.TargetApi
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -83,7 +86,7 @@ class LocationService : Service() {
     private fun sendItem() {
         val intent = Intent(KEY_BROADCAST)
 
-        sendBroadcast(intent)
+      //  sendBroadcast(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -101,7 +104,7 @@ class LocationService : Service() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_DEFAULT)
+                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
@@ -145,7 +148,6 @@ class LocationService : Service() {
         private const val NOTIFICATION_ID = 12345678
         private const val NOTIFICATION_CHANNEL_ID = "locaion_service_channel_01"
         private const val titleText = "Location Service"
-        var listItem : List<Item>? = null
 
         fun start(context: Context) {
             val intent = Intent(context, LocationService::class.java)
@@ -155,10 +157,6 @@ class LocationService : Service() {
         fun stop(context: Context) {
             val intent = Intent(context, LocationService::class.java)
             context.stopService(intent)
-        }
-
-        fun getListItems() : List<Item>? {
-            return listItem
         }
     }
 }

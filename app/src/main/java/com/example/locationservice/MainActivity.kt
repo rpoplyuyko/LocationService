@@ -2,40 +2,44 @@ package com.example.locationservice
 
 import android.Manifest
 import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 
 
 class MainActivity : AppCompatActivity() {
-    var messageReceiver: BroadcastReceiver? = MessageReceiver()
+    var messageReceiver: BroadcastReceiver? = MessageReceiver(this)
     val KEY_BROADCAST = "MessageUpdateDB"
+
+    private lateinit var instance: RoomSingleton
+    private lateinit var listItem: List<Item>
+    val adapter = ItemListAdapter()
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        initData(applicationContext, recyclerView)
+        layoutManager = LinearLayoutManager(applicationContext)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
 
-        doAsync { coroutineGetData() }
+        instance = RoomSingleton.getInstance(applicationContext)
+
+        update()
 
         // Button to start the service
         buttonStart.setOnClickListener {
             if (foregroundPermissionApproved()) {
+                val filter = IntentFilter(KEY_BROADCAST)
+                registerReceiver(messageReceiver, filter)
                 startService(Intent(applicationContext, LocationService::class.java))
             } else {
                 requestForegroundPermissions()
@@ -44,21 +48,21 @@ class MainActivity : AppCompatActivity() {
 
         // Button to stop the service
         buttonStop.setOnClickListener{
+            unregisterReceiver(messageReceiver)
             stopService(Intent(applicationContext, LocationService::class.java))
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    fun update() {
+        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = adapter
 
-        val filter = IntentFilter(KEY_BROADCAST)
-        filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-        this.registerReceiver(messageReceiver, filter);
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(messageReceiver);
+        listItem = emptyList<Item>()
+        doAsync {
+            listItem = instance.roomDAO().allItems()
+            adapter.setItems(listItem)
+        }
     }
 
     // Permission request ↓↓↓↓↓↓↓↓↓
