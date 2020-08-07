@@ -3,13 +3,15 @@ package com.example.locationservice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.jetbrains.anko.doAsync
 
 class MessageReceiver : BroadcastReceiver() {
-    private lateinit var list: List<Item>
-
     override fun onReceive(context: Context, intent: Intent) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//
-//        }
+        doAsync {
+            coroutineGetData()
+        }
     }
 }

@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.recyclerview_item.view.*
 
-class ItemListAdapter internal constructor(context: Context) : RecyclerView.Adapter<ItemListAdapter.ViewHolderRecyclerView>() {
+class ItemListAdapter internal constructor() : RecyclerView.Adapter<ItemListAdapter.ViewHolderRecyclerView>() {
     private var items = emptyList<Item>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderRecyclerView {
@@ -17,7 +17,7 @@ class ItemListAdapter internal constructor(context: Context) : RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: ViewHolderRecyclerView, position: Int) {
-        val currentItem = items!![position]
+        val currentItem = items[position]
 
         holder.tv_address.text = currentItem.item_address
         holder.tv_lat.text = currentItem.item_lat
@@ -30,7 +30,7 @@ class ItemListAdapter internal constructor(context: Context) : RecyclerView.Adap
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int = items!!.size
+    override fun getItemCount(): Int = items.size
 
     inner class ViewHolderRecyclerView(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tv_address: TextView = itemView.tv_address

@@ -23,29 +23,17 @@ import org.jetbrains.anko.doAsync
 class MainActivity : AppCompatActivity() {
     var messageReceiver: BroadcastReceiver? = MessageReceiver()
     val KEY_BROADCAST = "MessageUpdateDB"
-    private lateinit var instance: RoomSingleton
-    lateinit var listItem: List<Item>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        val layoutManager = LinearLayoutManager(this)
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        initData(applicationContext, recyclerView)
 
-        val adapter = ItemListAdapter(applicationContext)
-        recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = adapter
+        doAsync { coroutineGetData() }
 
-        listItem = emptyList<Item>()
-        instance = RoomSingleton.getInstance(applicationContext)
-        CoroutineScope(Dispatchers.IO).launch {
-            listItem = instance.roomDAO().allItems()
-            adapter.setItems(listItem)
-        }
-
-        // Get the service status
+        // Button to start the service
         buttonStart.setOnClickListener {
             if (foregroundPermissionApproved()) {
                 startService(Intent(applicationContext, LocationService::class.java))
@@ -57,14 +45,12 @@ class MainActivity : AppCompatActivity() {
         // Button to stop the service
         buttonStop.setOnClickListener{
             stopService(Intent(applicationContext, LocationService::class.java))
-            //  mDb = RoomSingleton.getInstance(applicationContext)
         }
     }
 
     override fun onStart() {
         super.onStart()
 
-        Toast.makeText(applicationContext, listItem.size.toString(),Toast.LENGTH_SHORT).show()
         val filter = IntentFilter(KEY_BROADCAST)
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         this.registerReceiver(messageReceiver, filter);
