@@ -1,5 +1,6 @@
 package com.example.locationservice
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationChannel
@@ -32,6 +33,7 @@ class LocationService : Service() {
         return null
     }
 
+    @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(NOTIFICATION_ID, createNotification(getTextLocation(currentLocation)))
         objectCallback()
@@ -74,19 +76,12 @@ class LocationService : Service() {
 
                     doAsync {
                         instance.roomDAO().insert(item)
-                        sendItem()
                     }
                 } else {
                     showNotification()
                 }
             }
         }
-    }
-
-    private fun sendItem() {
-        val intent = Intent(KEY_BROADCAST)
-
-        sendBroadcast(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -110,10 +105,6 @@ class LocationService : Service() {
 
         val notificationCompatBuilder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
 
-//        val launchActivityIntent = Intent(this, MainActivity::class.java)
-//        val activityPendingIntent = PendingIntent.getActivity(
-//            this, 0, launchActivityIntent, 0)
-
         return notificationCompatBuilder
             .setStyle(bigTextStyle)
             .setContentTitle(titleText)
@@ -122,7 +113,6 @@ class LocationService : Service() {
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            //.setContentIntent(activityPendingIntent)
             .build()
     }
 

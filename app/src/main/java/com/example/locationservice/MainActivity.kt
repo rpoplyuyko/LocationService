@@ -1,21 +1,20 @@
 package com.example.locationservice
 
 import android.Manifest
-import android.content.BroadcastReceiver
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.doAsync
 
 
 class MainActivity : AppCompatActivity() {
-    var messageReceiver: BroadcastReceiver? = MessageReceiver(this)
+//    var messageReceiver: BroadcastReceiver? = MessageReceiver(this)
     val KEY_BROADCAST = "MessageUpdateDB"
 
     private lateinit var instance: RoomSingleton
@@ -24,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var recyclerView: RecyclerView
 
+    private lateinit var itemViewModel: ItemViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -31,15 +32,19 @@ class MainActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(applicationContext)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
 
-        instance = RoomSingleton.getInstance(applicationContext)
+        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = adapter
 
-        update()
+        itemViewModel = ViewModelProvider(this).get(ItemViewModel::class.java)
+        itemViewModel.allWords.observe(this, Observer { items ->
+            // Update the cached copy of the words in the adapter.
+            items?.let { adapter.setItems(it) }
+        })
 
         // Button to start the service
         buttonStart.setOnClickListener {
             if (foregroundPermissionApproved()) {
-                val filter = IntentFilter(KEY_BROADCAST)
-                registerReceiver(messageReceiver, filter)
                 startService(Intent(applicationContext, LocationService::class.java))
             } else {
                 requestForegroundPermissions()
@@ -49,18 +54,6 @@ class MainActivity : AppCompatActivity() {
         // Button to stop the service
         buttonStop.setOnClickListener{
             stopService(Intent(applicationContext, LocationService::class.java))
-        }
-    }
-
-    fun update() {
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = adapter
-
-        listItem = emptyList<Item>()
-        doAsync {
-            listItem = instance.roomDAO().allItems()
-            adapter.setItems(listItem)
         }
     }
 
