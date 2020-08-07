@@ -63,23 +63,34 @@ class LocationService : Service() {
                     currentLocation = p0.lastLocation
                     showNotification()
 
+                    val item = Item(
+                        getAddress(applicationContext, p0.lastLocation),
+                        getCoordinates(p0.lastLocation, true),
+                        getCoordinates(p0.lastLocation, false),
+                        getDateStr())
+
                     doAsync {
-                        instance.roomDAO().insert(Item(
-                            getTextLocation(p0.lastLocation),
-                            getCoordinates(p0.lastLocation, true),
-                            getCoordinates(p0.lastLocation, false),
-                            getDateStr()
-                        ))
-                        instance.roomDAO().allItems()
-                        val intent = Intent(KEY_BROADCAST)
-                        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-                        sendBroadcast(intent)
+                        instance.roomDAO().insert(item)
+                            //sendItem(item,true, true, false)
                     }
                 } else {
                     showNotification()
                 }
             }
         }
+    }
+
+    private fun sendItem(item: Item, key_end: Boolean, key_update: Boolean, key_show: Boolean) {
+        val intent = Intent(KEY_BROADCAST)
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+            .putExtra(Constants.KEY_END_LIST, key_end)
+            .putExtra(Constants.KEY_INSERT_LIST, key_update)
+            .putExtra(Constants.KEY_SHOW_LIST, key_show)
+            .putExtra(Constants.KEY_ADDR, item.item_address)
+            .putExtra(Constants.KEY_LAT, item.item_lat)
+            .putExtra(Constants.KEY_LON, item.item_lon)
+            .putExtra(Constants.KEY_DATE, item.item_date)
+        sendBroadcast(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -103,9 +114,9 @@ class LocationService : Service() {
 
         val notificationCompatBuilder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
 
-        val launchActivityIntent = Intent(this, MainActivity::class.java)
-        val activityPendingIntent = PendingIntent.getActivity(
-            this, 0, launchActivityIntent, 0)
+//        val launchActivityIntent = Intent(this, MainActivity::class.java)
+//        val activityPendingIntent = PendingIntent.getActivity(
+//            this, 0, launchActivityIntent, 0)
 
         return notificationCompatBuilder
             .setStyle(bigTextStyle)
@@ -115,7 +126,7 @@ class LocationService : Service() {
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(activityPendingIntent)
+            //.setContentIntent(activityPendingIntent)
             .build()
     }
 

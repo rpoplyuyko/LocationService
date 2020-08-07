@@ -8,6 +8,10 @@ import android.location.Geocoder
 import android.location.Location
 import java.util.*
 
+private lateinit var instance: RoomSingleton
+lateinit var listItem: List<Item>
+
+
 fun getDateStr() : String {
     val sdf = SimpleDateFormat("dd/M/yyyy kk:mm:ss")
     return sdf.format(Date())

@@ -6,21 +6,44 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.net.ConnectivityManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jetbrains.anko.doAsync
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mDb: RoomSingleton
     var messageReceiver: BroadcastReceiver? = MessageReceiver()
     val KEY_BROADCAST = "MessageUpdateDB"
+    private lateinit var instance: RoomSingleton
+    lateinit var listItem: List<Item>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+
+        val adapter = ItemListAdapter(applicationContext)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = adapter
+
+        listItem = emptyList<Item>()
+        instance = RoomSingleton.getInstance(applicationContext)
+        CoroutineScope(Dispatchers.IO).launch {
+            listItem = instance.roomDAO().allItems()
+            adapter.setItems(listItem)
+        }
 
         // Get the service status
         buttonStart.setOnClickListener {
@@ -41,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        Toast.makeText(applicationContext, listItem.size.toString(),Toast.LENGTH_SHORT).show()
         val filter = IntentFilter(KEY_BROADCAST)
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         this.registerReceiver(messageReceiver, filter);
@@ -61,9 +85,5 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestForegroundPermissions() {
         requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
-    }
-
-    fun getContext() : Context {
-        return applicationContext
     }
 }
