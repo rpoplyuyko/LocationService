@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 
         // Button to stop the service
         buttonStop.setOnClickListener{
-            unregisterReceiver(messageReceiver)
             stopService(Intent(applicationContext, LocationService::class.java))
         }
     }

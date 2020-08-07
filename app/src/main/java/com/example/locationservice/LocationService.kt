@@ -86,7 +86,7 @@ class LocationService : Service() {
     private fun sendItem() {
         val intent = Intent(KEY_BROADCAST)
 
-      //  sendBroadcast(intent)
+        sendBroadcast(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
