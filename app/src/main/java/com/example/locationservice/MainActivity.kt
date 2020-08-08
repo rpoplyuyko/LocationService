@@ -14,9 +14,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var instance: RoomSingleton
-    private lateinit var listItem: List<Item>
-
     val adapter = ItemListAdapter()
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var recyclerView: RecyclerView

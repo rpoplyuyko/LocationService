@@ -26,7 +26,6 @@ class LocationService : Service() {
     private lateinit var locationCallback: LocationCallback
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var currentLocation: Location? = null
-    val KEY_BROADCAST = "MessageUpdateDB"
     private lateinit var instance: RoomSingleton
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -59,7 +58,7 @@ class LocationService : Service() {
         }
     }
 
-    fun objectCallback() {
+    private fun objectCallback() {
         locationCallback = object : LocationCallback() {
             @TargetApi(Build.VERSION_CODES.O)
             override fun onLocationResult(p0: LocationResult?) {
@@ -72,10 +71,11 @@ class LocationService : Service() {
                         getAddress(applicationContext, p0.lastLocation),
                         getCoordinates(p0.lastLocation, true),
                         getCoordinates(p0.lastLocation, false),
-                        getDateStr())
+                        getDateStr(), 0)
 
                     doAsync {
-                        instance.roomDAO().insert(item)
+                        instance.roomDAO().addItem(item.item_address, item.item_lat, item.item_lon, item.item_date)
+                        instance.roomDAO().deleteQuery()
                     }
                 } else {
                     currentLocation = null
@@ -130,9 +130,9 @@ class LocationService : Service() {
             val lat = location.latitude.toDouble()
             val lon = location.longitude.toDouble()
             return "$lat°, $lon°"
-        } else {
-            return "Location is empty"
         }
+        return "Location is empty"
+
     }
 
     companion object {
