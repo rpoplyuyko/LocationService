@@ -78,6 +78,7 @@ class LocationService : Service() {
                         instance.roomDAO().insert(item)
                     }
                 } else {
+                    currentLocation = null
                     showNotification()
                 }
             }
@@ -99,7 +100,7 @@ class LocationService : Service() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_HIGH)
+                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_LOW)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
