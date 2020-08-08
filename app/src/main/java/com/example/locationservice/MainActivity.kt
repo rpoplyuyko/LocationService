@@ -3,19 +3,19 @@ package com.example.locationservice
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
     val adapter = ItemListAdapter()
-    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var recyclerView: RecyclerView
 
     private lateinit var itemViewModel: ItemViewModel
@@ -24,11 +24,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        layoutManager = LinearLayoutManager(applicationContext)
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
-
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = layoutManager
+        recyclerView = findViewById(R.id.recyclerView)
         recyclerView.adapter = adapter
 
         itemViewModel = ViewModelProvider(this).get(ItemViewModel::class.java)
@@ -52,6 +48,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        selectLayoutManager()
+    }
+
     // Permission request ↓↓↓↓↓↓↓↓↓
     private fun foregroundPermissionApproved(): Boolean {
         return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
@@ -62,5 +64,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestForegroundPermissions() {
         requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
+    }
+
+    private fun selectLayoutManager() {
+        if (checkOrientation()) {
+            recyclerView.layoutManager = GridLayoutManager(applicationContext, 1)
+            recyclerView.addItemDecoration(GridItemDecoration(10, 1))
+        } else {
+            recyclerView.layoutManager = GridLayoutManager(applicationContext, 2)
+            recyclerView.addItemDecoration(GridItemDecoration(10, 2))
+        }
+    }
+
+    fun checkOrientation() : Boolean {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+            return true
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            return false;
+        return true
     }
 }
