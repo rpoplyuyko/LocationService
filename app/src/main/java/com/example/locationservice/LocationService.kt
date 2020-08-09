@@ -110,7 +110,7 @@ class LocationService : Service() {
             .setStyle(bigTextStyle)
             .setContentTitle(titleText)
             .setContentText(showText)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_gps_notification)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

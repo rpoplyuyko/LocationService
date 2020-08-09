@@ -17,7 +17,7 @@ class GridItemDecoration(gridSpacingPx: Int, gridSize: Int) : RecyclerView.ItemD
         outRect.bottom = mSizeGridSpacingPx
 
         if (mGridSize > 1) {
-            if (itemPosition % mGridSize == 0) {
+            if (itemPosition % mGridSize == 0 && outRect.left != mSizeGridSpacingPx) {
                 outRect.left = mSizeGridSpacingPx
                 outRect.right = padding
             } else {
@@ -25,8 +25,11 @@ class GridItemDecoration(gridSpacingPx: Int, gridSize: Int) : RecyclerView.ItemD
                 outRect.right = mSizeGridSpacingPx
             }
         } else {
-            outRect.left = mSizeGridSpacingPx
-            outRect.right = mSizeGridSpacingPx
+            if (outRect.left != mSizeGridSpacingPx) {
+                outRect.left = mSizeGridSpacingPx
+                outRect.right = mSizeGridSpacingPx
+            }
+
         }
     }
 }
