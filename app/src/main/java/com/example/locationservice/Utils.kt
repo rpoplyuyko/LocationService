@@ -6,6 +6,7 @@ import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import java.util.*
 
 @SuppressLint("SimpleDateFormat")
@@ -31,3 +32,11 @@ fun getCoordinates(location: Location, flag: Boolean) : String {
     }
 }
 
+fun checkGpsStatus(context: Context) : Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        return true
+    }
+    return false
+}

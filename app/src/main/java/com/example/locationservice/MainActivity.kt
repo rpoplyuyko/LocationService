@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
@@ -35,10 +36,13 @@ class MainActivity : AppCompatActivity() {
 
         // Button to start the service
         buttonStart.setOnClickListener {
+            requestForegroundPermissions()
             if (foregroundPermissionApproved()) {
-                startService(Intent(applicationContext, LocationService::class.java))
-            } else {
-                requestForegroundPermissions()
+                if (checkGpsStatus(this)) {
+                    startService(Intent(applicationContext, LocationService::class.java))
+                } else {
+                    Toast.makeText(this, "GPS disabled", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -50,7 +54,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
         selectLayoutManager()
     }
 
@@ -77,10 +80,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun checkOrientation() : Boolean {
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             return true
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        }
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             return false;
+        }
         return true
     }
 }
