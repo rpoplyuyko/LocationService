@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     val adapter = ItemListAdapter()
     private lateinit var recyclerView: RecyclerView
-
+    private var flag_layout = true
     private lateinit var itemViewModel: ItemViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +54,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        selectLayoutManager()
+        if (flag_layout) {
+            selectLayoutManager()
+            flag_layout = false
+        }
     }
 
     // Permission request ↓↓↓↓↓↓↓↓↓
